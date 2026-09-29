@@ -1,0 +1,522 @@
+A Cappella: Vocal
+Acid House: Electronic
+Acid Jazz: Electronic
+Acid Rock: Alternative
+Acid Techno: Electronic
+Acoustic: Acoustic
+Adult Alternative: Alternative
+Adult Alternative&#x200E;: Alternative
+Adult Contemporary: Pop
+Afrobeat: World
+Aggrotech: Electronic
+Alpine New Wave: Alternative
+Alpine Rock: Rock
+Alternative Rock: Alternative
+Alternative Country: Alternative
+Alternative Dance: Alternative
+Alternative Hip Hop: Alternative
+Alternative Metal: Alternative
+Ambient: Electronic
+Americana: Country
+Anarcho-Punk: Punk
+Andalusian Rock: Rock
+Anime: Alternative
+Anti-Folk: Alternative
+Art Pop: Alternative
+Art Punk: Punk
+Art Rock: Rock
+Australian Hip Hop: Hip Hop
+Austropop: Pop
+Avant-Pop: Alternative
+Avant-garde: Alternative
+Avant-garde Metal: Metal
+Axé: World
+Bachata: World
+Baião: World
+Bakersfield Sound: Country
+Ballad: Pop
+Banda: World
+Bandanejo: Country
+Baroque Pop: Pop
+Beat: Pop
+Beatbox: Hip Hop
+Bhangra: World
+Big Band: Jazz
+Big Beat: Electronic
+Black Metal: Metal
+Blue-Eyed Soul: R&B
+Bluegrass: Country
+Blues: Blues
+Blues Rock: Blues
+Bolero: World
+Boogie Woogie: Blues
+Bossa Nova: World
+Brazilian: World
+Brazilian Rock: Rock
+Breakbeat: Electronic
+Breakcore: Electronic
+Brega: World
+British Invasion: Rock
+Britpop: Rock
+Brutal Death Metal: Metal
+Bubblegum Dance: Pop
+Bubblegum Pop: Pop
+C-Pop: Pop
+Cabaret: Alternative
+Cabaret&#x200E;: Alternative
+Calypso: World
+Canadian Hip Hop: Hip Hop
+Candombe: World
+Canterbury: Rock
+Cantopop: Pop
+Celtic: World
+Celtic Punk: Punk
+Celtic Rock: Rock
+Chamber Music: Classical
+Chanson: Pop
+Chanson&#x200E;: Pop
+Chicago Blues: Blues
+Children's Music: Children's Music
+Children's Music&#x200E;: Children's Music
+Chill-out: Electronic
+Chillwave: Electronic
+Chiptune: Electronic
+Choral: Classical
+Christian: Christian
+Christian Hardcore: Christian
+Christian Hip Hop: Christian
+Christian Metal: Christian
+Christian Punk: Christian
+Christian Rock: Christian
+Christian Ska: Christian
+Christmas: World
+Classic Pop: Pop
+Classic Rock: Rock
+Classical: Classical
+Comedy: Other
+Comedy Rock: Other
+Comic Opera: Classical
+Contemporary Christian: Christian
+Contemporary Christian&#x200E;: Christian
+Contemporary Folk: Folk
+Contemporary Jazz: Jazz
+Contemporary R&B: R&B
+Cool Jazz: Jazz
+Country: Country
+Country Blues: Country
+Country Pop: Country
+Country Pop&#x200E;: Country
+Country Rap: Country
+Country Rock: Country
+Cowpunk: Country
+Crack Rock Steady: Punk
+Crossover: Rock
+Crossover Thrash: Metal
+Crunk: Hip Hop
+Crunkcore: Hip Hop
+Crust Punk: Punk
+Cuarteto: World
+Cumbia: World
+Dance: Dance
+Dance Punk: Dance
+Dance-Pop: Dance
+Dance-Rock: Dance
+Dancehall: Dance
+Dark Ambient: Electronic
+Dark Cabaret: Alternative
+Dark Electro: Electronic
+Dark Metal: Metal
+Dark Rock: Rock
+Dark Wave: Electronic
+Dark Wave&#x200F;&#x200E;: Electronic
+Death Metal: Metal
+Death 'n' Roll: Metal
+Deathcore: Metal
+Deathrock: Rock
+Deep House: Electronic
+Deep House&#x200E;: Electronic
+Delta Blues: Blues
+Deutschpunk: Punk
+Deutschrock: Rock
+Digital Hardcore: Electronic
+Dirty Blues: Blues
+Disco: Dance
+Disco House: Electronic
+Djent: Metal
+Doo-wop: Pop
+Doom Metal: Metal
+Downtempo: Electronic
+Dream Pop: Alternative
+Drone Doom: Metal
+Drone Music: Electronic
+Drum And Bass: Electronic
+Drumstep: Electronic
+Dub: Electronic
+Dubstep: Electronic
+EBM: Electronic
+EDM: Electronic
+Early Music: Classical
+East Coast Hip Hop: Hip Hop
+Easy Listening: Pop
+Electric Blues: Blues
+Electric Folk: Folk
+Electro: Electronic
+Electro House: Electronic
+Electro Swing: Electronic
+Electro-Industrial: Electronic
+Electroclash: Electronic
+Electronic: Electronic
+Electronic Rock: Electronic
+Electronic&#x200E;: Electronic
+Electronica: Electronic
+Electronicore: Metal
+Electropop: Pop
+Electropunk: Punk
+Emo: Rock
+Ethereal Wave: Electronic
+Eurobeat: Electronic
+Eurodance: Dance
+Europop: Pop
+Experimental: Other
+Experimental Hip Hop: Hip Hop
+Experimental Pop: Pop
+Experimental Rock: Rock
+Extreme Metal: Metal
+Fado: World
+Filk: Folk
+Flamenco: World
+Folk: Folk
+Folk Metal: Metal
+Folk Punk: Punk
+Folk Rock: Folk
+Folktronica: Folk
+Forró: World
+Forró&#x200E;: World
+Francophone: Pop
+Freak Folk: Folk
+Free Jazz: Jazz
+Freestyle: Hip Hop
+French Hip Hop: Hip Hop
+French House: Electronic
+French Pop: Pop
+French Pop&#x200E;: Pop
+Funk: Funk
+Funk Carioca: Funk
+Funk Melody: Funk
+Funk Metal: Metal
+Funk Rock: Funk
+Futurepop: Electronic
+G-Funk: Hip Hop
+Gabber: Electronic
+Gangsta Rap: Hip Hop
+Garage Punk: Punk
+Garage Rock: Rock
+Glam Metal: Metal
+Glam Rock: Rock
+Glitch: Electronic
+Glitch Hop: Electronic
+Goa Trance: Electronic
+Goregrind: Metal
+Gospel: R&B
+Gothic: Metal
+Gothic Metal: Metal
+Gothic Rock: Rock
+Gothic Rock&#x200F;&#x200E;: Rock
+Gregorian Chant: Classical
+Grime: Hip Hop
+Grindcore: Metal
+Groove Metal: Metal
+Grunge: Rock
+Grupero: World
+Gypsy Jazz: Jazz
+Gypsy Punk: Punk
+Hamburger Schule: Alternative
+Happy Hardcore: Electronic
+Hard Bop: Jazz
+Hard Rock: Rock
+Hard Trance: Electronic
+Hardcore Hip Hop: Hip Hop
+Hardcore Punk: Punk
+Hardstyle: Electronic
+Harmonica Blues: Blues
+Hatecore: Punk
+Hawaiian: World
+Heartland Rock: Rock
+Heavy Metal: Metal
+Hi-NRG: Electronic
+Hip Hop: Hip Hop
+Hip House: Hip Hop
+Honky Tonk: Country
+Horror Punk: Punk
+Horror Punk&#x200F;&#x200E;: Punk
+Horrorcore: Hip Hop
+House: Electronic
+Humppa: World
+Humppa&#x200E;: World
+IDM: Electronic
+Indie: Alternative
+Indie Folk: Folk
+Indie Folk&#x200E;: Folk
+Indie Pop: Pop
+Indie Rock: Rock
+Indietronica: Electronic
+Industrial: Electronic
+Industrial Metal: Metal
+Industrial Rock: Rock
+Instrumental Rock: Rock
+Irish Folk: Folk
+Italian Folk: Folk
+Italo Disco: Electronic
+J-Pop: Pop
+J-Punk: Punk
+J-Rap: Hip Hop
+J-Rock: Rock
+Jam Band: Rock
+Jangle Pop: Alternative
+Jazz: Jazz
+Jazz Fusion: Jazz
+Jazz-Funk: Jazz
+Jovem Guarda: Pop
+Jump Blues: Blues
+Junkanoo: World
+K-Pop: Pop
+Klezmer: World
+Krautrock: Rock
+Lambada: World
+Latin: World
+Latin Hip Hop: Hip Hop
+Latin Jazz: Jazz
+Latin Pop: Pop
+Latin Rock: Rock
+Lo-Fi: Alternative
+Lounge Music: Electronic
+Música Popular Portuguesa: World
+MPB: World
+Mandopop: Pop
+Mariachi: World
+Martial Industrial: Industrial
+Mashup: Electronic
+Math Rock: Rock
+Mathcore: Metal
+Medieval: Classical
+Medieval Folk Rock: Folk
+Melodic Death Metal: Metal
+Melodic Hardcore: Metal
+Melodic Metalcore: Metal
+Merengue: World
+Metalcore: Metal
+Midwest Rap: Hip Hop
+Milonga: World
+Minimal: Electronic
+Minimal Techno: Electronic
+Minnesang: Classical
+Mixed: Other
+Modern Classical: Classical
+Modern Rock: Rock
+Morna: World
+Musical: Other
+Mystic Folk: Folk
+NWOBHM: Metal
+Native American: World
+Nederpop: Pop
+Neo Soul: R&B
+Neo Soul&#x200E;: R&B
+Neo-Progressive Rock: Rock
+Neo-Psychedelia: Rock
+Neo-Psychedelia&#x200F;&#x200E;: Rock
+Neoclassical: Classical
+Neofolk: Folk
+Nerdcore Hip Hop: Hip Hop
+Neue Deutsche Härte: Metal
+Neue Deutsche Todeskunst: Metal
+Neue Deutsche Welle: Pop
+New Age: Other
+New Jack Swing: R&B
+New Orleans Rhythm and Blues: R&B
+New Rave: Electronic
+New Wave: Rock
+Nintendocore: Rock
+Noise: Electronic
+Noise Pop: Pop
+Noise Rock: Rock
+Norteño: World
+Norteño&#x200E;: World
+Novelty: Other
+Nu Jazz: Jazz
+Nu Metal: Metal
+Nu-Disco: Electronic
+Oi-Punk: Punk
+Oldies: Other
+Opera: Classical
+Operatic Pop: Pop
+Orchestral: Classical
+Outlaw Country: Country
+Outsider Music: Other
+Pagan Metal: Metal
+Pagan Metal&#x200E;: Metal
+Pagode: World
+Parody: Other
+Piano Rock: Rock
+Pimba: World
+Pirate Metal: Metal
+Political Hip Hop: Hip Hop
+Polka: World
+Pop: Pop
+Pop Punk: Punk
+Pop Rock: Pop
+Pop Rock&#x200E;: Pop
+Pop-Folk: Folk
+Pop-Rap: Hip Hop
+Post-Grunge: Rock
+Post-Hardcore: Punk
+Post-Industrial: Electronic
+Post-Metal: Metal
+Post-Punk: Punk
+Post-Punk Revival: Punk
+Post-Punk&#x200E;: Punk
+Post-Rock: Rock
+Post-Rock&#x200E;: Rock
+Power Metal: Metal
+Power Noise: Electronic
+Power Pop: Pop
+Powerviolence: Metal
+Progg: Rock
+Progressive Rock: Rock
+Progressive Bluegrass: Bluegrass
+Progressive Death Metal: Metal
+Progressive Folk: Folk
+Progressive House: Electronic
+Progressive Metal: Metal
+Progressive Rock&#x200E;: Rock
+Progressive Rock&#x200F;&#x200E;: Rock
+Progressive Trance: Electronic
+Protest Song: Other
+Protopunk: Punk
+Psych Folk: Folk
+Psychedelic: Rock
+Psychedelic Folk: Folk
+Psychedelic Pop: Pop
+Psychedelic Rock: Rock
+Psychedelic Rock&#x200E;: Rock
+Psychedelic Trance: Electronic
+Psychobilly: Rock
+Pub Rock: Rock
+Punk Blues: Punk
+Punk Cabaret: Punk
+Punk Rock: Punk
+Punkabilly: Punk
+Queercore: Punk
+Quiet Storm: R&B
+R&B: R&B
+RIO: Electronic
+Ragga: Reggae
+Ragtime: Jazz
+Ranchera: World
+Rap Metal: Metal
+Rap Rock: Hip Hop
+Rapcore: Hip Hop
+Rave: Electronic
+Raw Rock: Rock
+Reggae: Reggae
+Reggae Fusion: Reggae
+Reggae Rock: Reggae
+Reggae&#x200F;&#x200E;: Reggae
+Reggaeton: Reggae
+Regional Mexican: World
+Religious: Other
+Riot Grrrl: Punk
+Rock: Rock
+Rock 'N' Roll: Rock
+Rock 'N' Roll&#x200E;: Rock
+Rock Against Communism: Punk
+Rock Opera: Rock
+Rock en Español: Rock
+Rockabilly: Rock
+Roots: Folk
+Roots Reggae: Reggae
+Roots Rock: Reggae
+Rumba: World
+Salsa: World
+Samba: World
+Samba-Canção: World
+Schlager: Pop
+Screamo: Rock
+Sertanejo: Country
+Shibuya-Kei: Pop
+Shoegazing: Rock
+Shoegazing&#x200F;&#x200E;: Rock
+Singer-Songwriter: Folk
+Singer-Songwriter&#x200E;: Folk
+Ska: Ska
+Ska Punk: Punk
+Ska Punk&#x200E;: Punk
+Skate Punk: Punk
+Skiffle: Folk
+Slam: Metal
+Slowcore: Rock
+Sludge Metal: Metal
+Smooth Jazz: Jazz
+Soca: World
+Soft Rock: Pop
+Son Cubano: World
+Soul: R&B
+Soul Jazz: Jazz
+Soundtrack: Other
+Soundtrack/Musical: Other
+Soundtrack/Television: Other
+Southern Gospel: Christian
+Southern Hip Hop: Hip Hop
+Southern Metal: Metal
+Southern Rock: Rock
+Space Rock: Rock
+Speed Metal: Metal
+Speedcore: Metal
+Spoken Word: Other
+Steampunk: Other
+Stoner Rock: Rock
+Street Punk: Punk
+Sung Poetry: Other
+Sunshine Pop: Pop
+Surf: Rock
+Surf Rock: Rock
+Swamp Blues: Blues
+Swing: Jazz
+Swiss Rock: Rock
+Symphonic Black Metal: Metal
+Symphonic Metal: Metal
+Symphonic Metal&#x200E;: Metal
+Symphonic Rock: Rock
+Synthpop: Electronic
+Tango: World
+Tech House: Electronic
+Technical Death Metal: Metal
+Techno: Electronic
+Teen Pop: Pop
+Tejano: Country
+Thrash Metal: Metal
+Thrashcore: Metal
+Trance: Electronic
+Trap: Hip Hop
+Trip Hop: Electronic
+Tropicalismo: World
+Trova: World
+Turkish Rock: Rock
+Unblack Metal: Metal
+Underground Hip Hop: Hip Hop
+Vaudeville: Other
+Viking Metal: Metal
+Visual Kei: Rock
+Visual Kei&#x200E;: Rock
+Vocal: Vocal
+Vocal Jazz: Jazz
+Vocal Trance: Electronic
+Volkslied: Folk
+Volksmusik: Folk
+Volkstümlich: Folk
+West Coast Hip Hop: Hip Hop
+World Music: World
+Worldbeat: World
+Worship: Christian
+Yé-yé: Pop
+Zeuhl: Rock
+Zydeco: World

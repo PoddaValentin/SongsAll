@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genre Pie Chart</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+  <style>
+    #goToPageBubbleText {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #goToPageBubbleText a, a {
+        color: #4CAF50;
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+    #chart {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html">Back to Home</a>
+  <h2>Genre Distribution for Year</h2>
+  <label for="yearInput">Enter Year:</label>
+  <input type="text" id="yearInput" placeholder="e.g., 2023">
+  <button onclick="loadAndDisplayData()">Show Chart</button>
+
+  <!-- Container for the Pie Chart -->
+  <div id="chart"></div>
+
+  <div id="goToPageBubbleText">
+    <p><a id="goToPageBubbleLink" href="pageBubble.html?year=">Go to next page</a></p>
+  </div>
+
+<script>
+  function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
+
+  // When the page loads, get the year parameter
+  window.onload = function() {
+    const year = getQueryParam("year");
+    if (year) {
+      document.getElementById("yearInput").value = year; // Set the input field
+      loadAndDisplayData(); // Optionally call the function to load data
+    }
+  };
+
+  async function loadAndDisplayData() {
+    const year = document.getElementById("yearInput").value;
+    if (!year) {
+      alert("Please enter a year");
+      return;
+    }
+
+    try {
+      // Load the folder structure from albums_structure.json
+      const structureResponse = await fetch('/data/albums_structure.json');
+      const structure = await structureResponse.json();
+
+      // Load subgenres mapping
+      const subgenresResponse = await fetch('/data/subgenres_by_genre.json');
+      const subgenresMap = await subgenresResponse.json();
+
+      // Load color scheme
+      const colorSchemeResponse = await fetch('/color_scheme.json');
+      const colorScheme = await colorSchemeResponse.json();
+
+      // Check if the year exists in the structure
+      if (!structure[year]) {
+        alert("No data found for the specified year.");
+        return;
+      }
+
+      // Fetch genre data for the specified year
+      const data = await fetchGenreData(structure, year, subgenresMap);
+      if (data && data.length > 0) {
+        const genreData = aggregateGenres(data);
+
+        // Log all unique genres
+        console.log("Unique genres:", genreData.map(d => d.genre));
+
+        renderPieChart(genreData, subgenresMap, colorScheme);
+      } else {
+        alert("No data found for the specified year.");
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+      alert("Failed to load data.");
+    }
+
+    document.getElementById("goToPageBubbleLink").onclick = function() {
+      const year = document.getElementById("yearInput").value;
+      if (year) {
+        document.getElementById("goToPageBubbleLink").href = `pageBubbleChart.html?year=${year}`;
+      } else {
+        alert("Please enter a year before proceeding.");
+        return false;
+      }
+    };
+  }
+
+  async function fetchGenreData(structure, year, subgenresMap) {
+    const allGenres = [];
+
+    // Get country folders for the specified year
+    const countries = structure[year];
+    for (const [country, files] of Object.entries(countries)) {
+      for (const file of files) {
+        // Fetch each album JSON file
+        const albumResponse = await fetch(`/data/processed_albums/${year}/${country}/${file}`);
+        const albums = await albumResponse.json();
+
+        // Extract genres and map to broader categories
+        albums.forEach(album => {
+          if (album.genre) {
+            // Find the broader genre for the specific genre
+            for (const [broadGenre, subGenres] of Object.entries(subgenresMap)) {
+              if (subGenres.includes(album.genre)) {
+                allGenres.push(broadGenre);
+                break; // Exit once we find the match
+              }
+            }
+          }
+        });
+      }
+    }
+
+    return allGenres;
+  }
+
+  function aggregateGenres(genres) {
+    const genreCount = {};
+
+    genres.forEach(genre => {
+      genreCount[genre] = (genreCount[genre] || 0) + 1;
+    });
+
+    return Object.entries(genreCount).map(([genre, count]) => ({ genre, count }));
+  }
+
+  function renderPieChart(data, subgenresMap, colorScheme) {
+    const width = 600, height = 600, margin = 60;
+    const radius = Math.min(width, height) / 2 - margin;
+
+    d3.select("#chart").html("");
+
+    const svg = d3.select("#chart")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+    const color = d3.scaleOrdinal()
+      .domain(Object.keys(subgenresMap))
+      .range(colorScheme);
+
+    const pie = d3.pie().value(d => d.count);
+    const dataReady = pie(data);
+
+    // Create the arcs for the pie slices
+    const arcGenerator = d3.arc()
+      .innerRadius(0)
+      .outerRadius(radius);
+
+    // Append tooltip div to the body
+    const tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0)
+      .style("position", "absolute")
+      .style("text-align", "center");
+
+    const chartPosition = svg.node().getBoundingClientRect();
+    console.log(chartPosition);
+
+    svg.selectAll("path")
+      .data(dataReady)
+      .join("path")
+      .attr("d", arcGenerator)
+      .attr("fill", d => color(d.data.genre))
+      .attr("stroke", "white")
+      .style("stroke-width", "2px")
+      .on("mouseover", (event, d) => {
+        const totalCount = data.reduce((sum, genre) => sum + genre.count, 0);
+        const percentage = ((d.data.count / totalCount) * 100).toFixed(1);
+
+        // Calculate centroid position for tooltip
+        const [centroidX, centroidY] = arcGenerator.centroid(d);
+        const tooltipX = chartPosition.x + (centroidX * 1.5) ; // Adjust based on SVG center
+        const tooltipY = chartPosition.y + (centroidY * 1.5) ; // Adjust based on SVG center
+
+        // Show tooltip with percentage information at centroid
+        tooltip.style("opacity", 1);
+        tooltip.html(`${percentage}%`)
+          .style("left", (tooltipX) + "px")
+          .style("top", (tooltipY) + "px");
+      })
+      .on("mouseout", () => {
+        // Hide tooltip
+        tooltip.style("opacity", 0);
+      });
+
+    percentageThreshold = 0.4
+    totalCount = data.reduce((sum, genre) => sum + genre.count, 0)
+    labelThreshold = percentageThreshold *  totalCount / 100;
+
+    // Position the text labels outside the pie chart
+    svg.selectAll("text")
+      .data(dataReady)
+      .join("text")
+      .filter(d => d.data.count >= labelThreshold)
+      .text(d => d.data.genre)
+      .attr("transform", d => {
+        const [x, y] = arcGenerator.centroid(d);
+        const offset = 2.1; // Offset distance from the arc
+        const angle = (d.startAngle + d.endAngle) / 2; // Midpoint angle of the arc
+        const labelX = (x + Math.cos(angle)) * offset; // Calculate X position
+        const labelY = (y + Math.sin(angle)) * offset; // Calculate Y position
+
+        // Calculate rotation angle
+        const rotationAngle = angle * (180 / Math.PI) + (angle * (180 / Math.PI) > 180 ? 90 : 270);
+
+        return `translate(${labelX}, ${labelY}) rotate(${rotationAngle})`;
+      })
+      .style("text-anchor", d => {
+        // Adjust text-anchor based on the angle to prevent overlap
+        const angle = (d.startAngle + d.endAngle) / 2;
+        return angle < Math.PI ? "start" : "end"; // Left or right
+      })      .style("font-size", 12);
+  }
+
+</script>
+
+</body>
+</html>

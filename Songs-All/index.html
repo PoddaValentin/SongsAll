@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scatter Plot of Deezer Fans</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <style>
+        #goToPage1BisText {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+        #goToPage1BisText a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .axis-label {
+            font-size: 12px;
+            font-family: sans-serif;
+        }
+        .legend {
+            font-size: 12px;
+            font-family: sans-serif;
+        }
+        #legend {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .legend-item {
+            margin-right: 15px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: left;
+            padding: 8px;
+            font-size: 12px;
+            background: lightsteelblue;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>Scatter Plot of Deezer Fans for Albums</h2>
+    <select id="countrySelect">
+        <option value="">Select a country</option>
+    </select>
+    <button id="showChartButton" onclick="loadAndDisplayData()">Show Chart</button>
+
+    <!-- Container for the Scatter Plot -->
+    <div id="chart"></div>
+    <!-- Container for the Legend -->
+    <div id="legend"></div>
+
+    <div id="goToPage1BisText" style="display: none;">
+        <p><a id="goToPage1BisLink" href="page1bis.html">Go to next page</a></p>
+    </div>
+
+    <script>
+        let genreColors = {};
+
+        async function loadColorScheme() {
+            const colorSchemeResponse = await fetch('/color_scheme.json');
+            const colorScheme = await colorSchemeResponse.json();
+
+            const genres = ["Vocal", "Electronic", "Alternative", "Acoustic", "Pop", "World", "Rock", "Country", 
+                            "Punk", "Hip Hop", "Metal", "Jazz", "R&B", "Blues", "Classical", "Children's Music", 
+                            "Christian", "Other", "Folk", "Dance", "Funk", "Industrial", "Bluegrass", "Reggae", 
+                            "Ska"];
+            
+            genres.forEach((genre, index) => {
+                genreColors[genre] = colorScheme[index % colorScheme.length];
+            });
+        }
+
+        async function initializeCountryDropdown() {
+            try {
+                const structureResponse = await fetch('/data/albums_structure.json');
+                const structure = await structureResponse.json();
+
+                let countries = new Set();
+                for (const year of Object.keys(structure)) {
+                    for (const country of Object.keys(structure[year])) {
+                        countries.add(country);
+                    }
+                }
+
+                countries = Array.from(countries).sort();
+
+                const countrySelect = document.getElementById('countrySelect');
+                countries.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    option.textContent = country;
+                    countrySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Error loading country data:", error);
+                alert("Failed to load country data.");
+            }
+        }
+
+        window.onload = async function() {
+            await loadColorScheme();
+            initializeCountryDropdown();
+        };
+
+        async function loadAndDisplayData() {
+            const country = document.getElementById("countrySelect").value;
+            if (!country) {
+                alert("Please select a country");
+                document.getElementById("goToPage1BisText").style.display = "none";
+                return;
+            }
+
+            try {
+                const structureResponse = await fetch('/data/albums_structure.json');
+                const structure = await structureResponse.json();
+                const subgenresResponse = await fetch('/data/subgenres_by_genre.json');
+                const subgenresMap = await subgenresResponse.json();
+                const countryCodes = await fetchAlbumCountryCodeData(structure);
+                const data = await fetchAlbumData(structure, country, subgenresMap);
+
+                if (data && data.length > 0) {
+                    renderScatterPlot(data);
+                    renderLegend();
+
+                    if (countryCodes.includes(country)) {
+                        document.getElementById("goToPage1BisText").style.display = "block";
+                        document.getElementById("goToPage1BisLink").href = `page1bis.html?countryCode=${country}`;
+                    } else {
+                        document.getElementById("goToPage1BisText").style.display = "none";
+                    }
+                } else {
+                    alert("No data found for the specified country.");
+                    document.getElementById("goToPage1BisText").style.display = "none";
+                }
+            } catch (error) {
+                console.error("Error loading data:", error);
+                alert("Failed to load data.");
+                document.getElementById("goToPage1BisText").style.display = "none";
+            }
+        }
+
+        async function fetchAlbumData(structure, country, subgenresMap) {
+            const albumsData = [];
+
+            for (const year of Object.keys(structure)) {
+                if (structure[year][country]) {
+                    const files = structure[year][country];
+                    for (const file of files) {
+                        try {
+                            const albumResponse = await fetch(`/data/processed_albums/${year}/${country}/${file}`);
+                            const albums = await albumResponse.json();
+
+                            albums.forEach(album => {
+                                if (album.deezerFans !== undefined && album.dateRelease !== undefined) {
+                                    const year = parseInt(album.dateRelease.substring(0, 4), 10);
+                                    const genre = album.genre ? getBroaderGenre(album.genre, subgenresMap) : "Unknown";
+                                    albumsData.push({ year, fans: album.deezerFans, genre, name: album.name });
+                                }
+                            });
+                        } catch (error) {
+                            console.error(`Error fetching file ${file} for year ${year}:`, error);
+                        }
+                    }
+                }
+            }
+
+            return albumsData;
+        }
+
+        function getBroaderGenre(subgenre, subgenresMap) {
+            for (const [broadGenre, subGenres] of Object.entries(subgenresMap)) {
+                if (subGenres.includes(subgenre)) {
+                    return broadGenre;
+                }
+            }
+            return "Unknown";
+        }
+
+        function renderScatterPlot(data) {
+            const width = 1200, height = 600, margin = { top: 20, right: 30, bottom: 50, left: 60 };
+
+            d3.select("#chart").html("");
+
+            const svg = d3.select("#chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([d3.min(data, d => d.year) - 1, d3.max(data, d => d.year) + 1]).nice()
+                .range([0, width]);
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).tickFormat(d3.format("d")))
+                .append("text")
+                .attr("class", "axis-label")
+                .attr("x", width / 2)
+                .attr("y", 40)
+                .attr("text-anchor", "middle")
+                .text("Year");
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.fans)]).nice()
+                .range([height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .append("text")
+                .attr("class", "axis-label")
+                .attr("x", -height / 2)
+                .attr("y", -40)
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .text("Deezer Fans");
+
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            svg.selectAll("circle")
+                .data(data)
+                .join("circle")
+                .attr("cx", d => x(d.year))
+                .attr("cy", d => y(d.fans))
+                .attr("r", 3)  // Set the radius of the dots to 3
+                .style("fill", d => genreColors[d.genre] || "gray")
+                .on("mouseover", (event, d) => {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`Album: ${d.name}<br>Year: ${d.year}<br>Fans: ${d.fans}`)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+        }
+
+        function renderLegend() {
+            d3.select("#legend").html("");
+
+            Object.entries(genreColors).forEach(([genre, color]) => {
+                const legendItem = d3.select("#legend").append("div").attr("class", "legend-item");
+                legendItem.append("div").attr("class", "legend-color").style("background-color", color);
+                legendItem.append("div").attr("class", "legend-label").text(genre);
+            });
+        }
+
+        async function fetchAlbumCountryCodeData(structure) {
+            const countryCodes = [];
+            for (const year of Object.keys(structure)) {
+                for (const country of Object.keys(structure[year])) {
+                    if (!countryCodes.includes(country)) {
+                        countryCodes.push(country);
+                    }
+                }
+            }
+            countryCodes.sort();
+            console.log(countryCodes);
+            return countryCodes;
+        }
+    </script>
+</body>
+</html>
+

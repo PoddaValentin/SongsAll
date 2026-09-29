@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Album Release Calendar</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+  <style>
+    /* Add the existing styles */
+    #calendar {
+      width: 90%;
+      margin: 0 auto;
+    }
+
+    select, input[type="text"] {
+      padding: 5px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #months {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .month {
+      width: calc(25% - 20px);
+      margin: 10px;
+      padding: 15px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .month h4 {
+      margin: 0;
+      font-size: 16px;
+      text-align: center;
+      color: #333;
+    }
+
+    .day {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      margin: 2px;
+      background-color: lightgrey;
+      color: #333;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .day:hover {
+      background-color: #555;
+      color: white;
+    }
+
+    .day[data-has-release="true"] {
+      background-color: #5fd964;
+      color: white;
+    }
+
+    .title {
+			font-weight: bold;
+			font-size: large;
+			display: flex;
+			justify-content: center;
+		}
+
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+      color: #333;
+      font-size: 14px;
+      max-width: 200px;
+      visibility: hidden;
+      pointer-events: auto;
+      transition: visibility 0.3s ease, opacity 0.3s ease;
+    }
+
+    .tooltip a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+
+    .tooltip a:hover {
+      text-decoration: underline;
+    }
+
+    .tooltip span {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+    .tooltip span:hover {
+      text-decoration: underline;
+    }
+    #goToPage2Text {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+    }
+    #goToPage2Text a, a {
+      color: #4CAF50;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+    <a href="index.html">Back to Home</a>
+    <h2>Album Releases Distribution by Year and Country</h2>
+    <label for="countryInput">Select a country:</label>
+    <select id="countryInput"></select>
+
+    <label for="yearInput">Enter Year:</label>
+    <input type="text" id="yearInput" placeholder="e.g., 2023">
+    <button onclick="loadAndDisplayData()">Show Data</button>
+
+    <div id="container">
+        <div id="calendar">
+            <h3>Album Releases Calendar</h3>
+            <div id="months"></div>
+        </div>
+    </div>
+
+    <div id="container" style="margin-top: 50; flex-direction: row;">
+        <div id="timeline">
+          <div class="title"></div>
+          <div class="tooltip" id="tooltip"></div>
+	        <svg width="100%" height="700"></svg>
+        </div>
+    </div>
+
+    <div id="goToPage2Text" style="display: none;">
+      <p><a id="goToPage2Link" href="page2.html">Go to next page</a></p>
+    </div>
+
+<script>
+  // Function to get query parameters from the URL
+  function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+  }
+
+  window.onload = function() {
+      console.log('Page loaded');
+      populateCountrySelect();
+      const countryCode = getQueryParam("countryCode");
+
+      if (countryCode) {
+          document.getElementById("countryInput").value = countryCode;
+          loadAndDisplayData();
+      }
+
+      document.getElementById("yearInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          loadAndDisplayData();
+        }
+      });
+
+      document.getElementById("countryInput").addEventListener("change", loadAndDisplayData);
+  };
+
+
+  async function populateCountrySelect() {
+    try {
+      const structureResponse = await fetch('/data/albums_structure.json');
+      const structure = await structureResponse.json();
+      const countryCodes = await fetchAlbumCountryCodeData(structure);
+      console.log('Country codes:', countryCodes);  // This will log the list of country codes
+
+      const selectElement = document.getElementById("countryInput");
+      countryCodes.forEach(country => {
+        const option = document.createElement("option");
+        option.value = country;
+        option.textContent = country;
+        selectElement.appendChild(option);
+      });
+
+      // Now, set the value of the select element after it has been populated
+      const countryCode = getQueryParam("countryCode");
+      if (countryCode) {
+        selectElement.value = countryCode;
+      }
+
+      // After setting the value, load and display the data
+      loadAndDisplayData();
+
+    } catch (error) {
+      console.error("Error loading country codes:", error);
+    }
+  }
+
+  // Fetch list of country codes from the structure data
+  async function fetchAlbumCountryCodeData(structure) {
+    const countryCode = new Set();
+    for (const year in structure) {
+      for (const country in structure[year]) {
+        countryCode.add(country);
+      }
+    }
+    return Array.from(countryCode).sort();
+  }
+
+  // Load data and render the calendar
+  async function loadAndDisplayData() {
+    const year = document.getElementById("yearInput").value;
+    const countryCode = document.getElementById("countryInput").value;
+
+    if (!year || !countryCode) {
+      return;
+    }
+
+    try {
+      const structureResponse = await fetch('/data/albums_structure.json');
+      const structure = await structureResponse.json();
+
+      if (!structure[year]) {
+        alert("No data found for the specified year.");
+        return;
+      }
+
+      const albumTitles = await fetchAlbumTitleData(structure, year, countryCode);
+      if (albumTitles && albumTitles.length > 0) {
+        renderCalendar(albumTitles);
+      } else {
+        alert("No data found for the specified year and country.");
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+      alert("Failed to load data.");
+    }
+
+    if (year.includes(year)) {
+          document.getElementById("goToPage2Text").style.display = "block";
+          document.getElementById("goToPage2Link").href = `page2.html?year=${year}`;
+        } else {
+          document.getElementById("goToPage2Text").style.display = "none";
+        }
+  }
+
+  function renderCalendar(albumTitles) {
+    d3.select("#months").html("");  // Clear previous calendar if any
+
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"];
+    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const yearInput = document.getElementById("yearInput").value;
+
+    // Map to group album titles by date for quick access
+    const releaseMap = albumTitles.reduce((acc, { title, artist, dateRelease, date }) => {
+      let formattedDate = date.length === 4 ? `${date}-12-01` : date.length === 7 ? `${date}-01` : date;
+      if (!acc[formattedDate]) acc[formattedDate] = [];
+      acc[formattedDate].push({ title, artist });
+      return acc;
+    }, {});
+
+    const tooltip = d3.select("body")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("visibility", "hidden");
+
+    let isTooltipPinned = false;
+
+    // Create a container for four months
+    const monthsContainer = d3.select("#months");
+
+    for (let monthIndex = 0; monthIndex < monthNames.length; monthIndex += 4) {
+      const monthRowDiv = monthsContainer.append("div").style("display", "flex").style("width", "100%");
+
+      for (let i = 0; i < 4; i++) {
+        if (monthIndex + i < monthNames.length) {
+          const monthDiv = monthRowDiv.append("div").attr("class", "month");
+          monthDiv.append("h4").text(monthNames[monthIndex + i]);
+
+          const daysDiv = monthDiv.append("div").style("display", "flex").style("flex-wrap", "wrap");
+
+          const daysInThisMonth = monthIndex + i === 1 && yearInput % 4 === 0 ? 29 : daysInMonth[monthIndex + i];
+
+          for (let day = 1; day <= daysInThisMonth; day++) {
+            const formattedDate = `${yearInput}-${String(monthIndex + i + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const albumsOnThisDay = releaseMap[formattedDate];
+
+            daysDiv.append("div")
+              .attr("class", "day")
+              .style("background-color", albumsOnThisDay ? "#5fd964" : "lightgrey")
+              .on("mouseover", function(event) {
+                if (!isTooltipPinned && albumsOnThisDay) {
+                  tooltip.style("visibility", "visible")
+                        .html(albumsOnThisDay.map(album =>
+                          `${album.title} - <span onClick="getArtistTimeline('${album.artist}')" target="_blank">${album.artist}</span>`
+                        ).join("<br>"));
+                }
+              })
+              .on("mousemove", function(event) {
+                if (!isTooltipPinned) {
+                  tooltip.style("top", (event.pageY + 5) + "px")
+                        .style("left", (event.pageX + 5) + "px");
+                }
+              })
+              .on("click", function(event) {
+                event.stopPropagation();
+                if (albumsOnThisDay) {
+                  isTooltipPinned = true;
+                  tooltip.style("visibility", "visible")
+                        .style("top", (event.pageY + 5) + "px")
+                        .style("left", (event.pageX + 5) + "px")
+                        .html(albumsOnThisDay.map(album =>
+                          `${album.title} - <span onClick="getArtistTimeline('${album.artist}')" target="_blank">${album.artist}</span>`
+                        ).join("<br>"));
+                }
+              })
+              .on("mouseout", function() {
+                if (!isTooltipPinned) tooltip.style("visibility", "hidden");
+              })
+              .text(day);
+          }
+        }
+      }
+    }
+
+    // Hide tooltip when clicking outside
+    document.addEventListener("click", function() {
+      isTooltipPinned = false;
+      tooltip.style("visibility", "hidden");
+    });
+  }
+
+
+  // Generate the tooltip content
+  function generateTooltipContent(date) {
+    const release = releaseMap[date];
+    return release ? release.map(item => `${item.title} by ${item.artist}`).join("<br>") : "No releases.";
+  }
+
+  // Check if the year is a leap year
+  function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+  }
+
+  async function fetchAlbumTitleData(structure, year, countryCode) {
+    const allAlbumTitle = [];
+    const countries = structure[year];
+
+    if (countries[countryCode]) {
+      const files = countries[countryCode];
+      for (const file of files) {
+        const albumResponse = await fetch(`/data/processed_albums/${year}/${countryCode}/${file}`);
+        const albums = await albumResponse.json();
+
+        albums.forEach(album => {
+          if (album.title && album.name) {
+            allAlbumTitle.push({ title: album.title, artist: album.name, dateRelease: album.dateRelease, date: album.date });
+          }
+        });
+      }
+    }
+
+    return allAlbumTitle;
+  }
+
+// Timeline
+const albumsData = [];
+const songsData = [];
+let artist_name;
+let artist_id;
+
+async function findArtist(){
+	const artistsReponse = await fetch('/data/artists_structure.json');
+	const artistsStructure = await artistsReponse.json();
+	
+  for (const country in artistsStructure) {
+		const files = artistsStructure[country];
+		for (const file of files) {
+      try {
+			  const artistsCountry = await fetch(`/data/processed_artists/${country}/${file}`);
+				if (!artistsCountry.ok) {
+          console.warn(`File not found or error in file: ${file} (Status: ${artistsCountry.status})`);
+          continue;  // Skip to the next file if this one fails
+        }
+				const artists = await artistsCountry.json();
+
+				artists.forEach(artist => {
+  				if (artist.name === artist_name) {
+					artist_id = artist._id.$oid;
+					console.log(artist);
+  		  	}
+				});
+
+			} catch(error) {
+				console.error(`Error processing file ${file}:`, error);
+			}
+		}
+	}
+
+	if (artist_id==''){
+		d3.select(".error").text('The artist '+artist_name+' has not been found. Try again.');
+		return;
+  };
+}
+
+async function fetchSongs() {
+	const artist_songs = [];
+
+	const structureResponse = await fetch('/data/songs_structure.json');
+	const structure = await structureResponse.json();
+
+	for (const year in structure) {
+		const files = structure[year];
+		for (const file of files) {
+			try {
+				const songsYears = await fetch(`/data/processed_songs/${year}/${file}`);
+				if (!songsYears.ok) {
+          console.warn(`File not found or error in file: ${file} (Status: ${songsYears.status})`);
+      		continue;
+        }
+				const songs = await songsYears.json();
+
+				songs.forEach(song => {
+  				if (song.name === artist_name) {
+					artist_songs.push(song);
+  				}
+				});
+
+			} catch(error) {
+				console.error(`Error processing file ${file}:`, error);
+			}
+
+		}
+	}
+	formatDataSongs(artist_songs);
+}
+
+async function fetchAlbums() {
+	const artist_albums = [];
+
+	const structureResponse = await fetch('/data/albums_structure.json');
+	const structure = await structureResponse.json();
+
+	for (const year in structure) {
+	  const countries = structure[year];
+		for (const country in countries) {
+			const files = countries[country];
+			for (const file of files) {
+				// Fetch each album JSON file
+				const albumResponse = await fetch(`/data/processed_albums/${year}/${country}/${file}`);
+				const albums = await albumResponse.json();
+
+				albums.forEach(album => {
+				  const songsList = []
+  			  if (album.id_artist.$oid === artist_id) {
+					  songsData.forEach(song => {
+					    if (song.album_id === album._id.$oid){
+						    songsList.push(song);
+					    }
+				    });
+				    album.songs = songsList;
+				    console.log(album);
+				    artist_albums.push(album);
+  			  }
+		    });
+			}
+		}
+	}
+	
+  formatDataAlbums(artist_albums);
+}
+
+function formatDataSongs(songs) {
+	songs.forEach(song => {
+	  if(song.publicationDate == '' || song.publicationDate == '0000-00-00'){
+		  if (song.releaseYear != 'Unknown'){
+			  songsData.push({date: song.releaseYear, title: song.title, type: 'song', album_id: song.id_album.$oid, genre: song.genre});
+		  }
+	  } else{
+		  songsData.push({date: song.publicationDate, title: song.title, type: 'song', album_id: song.id_album.$oid, genre: song.genre})
+	  }
+	});
+}
+
+function formatDataAlbums(albums){
+	console.log(albums);
+	albums.forEach(album => {
+		const dateRelease = getDateFromSongs(album);
+		if(album.dateRelease != "Unknown"){
+			albumsData.push({date: dateRelease, title: album.title, type: 'album', cover: album.cover.small, genre: album.genre, songs: album.songs});
+		}
+	});
+}
+
+function getDateFromSongs(album){
+	let songs = album.songs;
+	let dates = {};
+	songs.forEach(song => {
+		dates[song.date] = (dates[song.date] ||0) +1;
+	});
+
+	let albumReleaseDate = dates[0];
+	let maxCount = 0;
+
+  for (const item in dates) {
+    if (dates[item] > maxCount) {
+    	maxCount = dates[item];
+  		albumReleaseDate = item;
+  	}
+	}
+	return albumReleaseDate;
+}
+
+
+function buildTimeline(){
+	// Parse the date format
+	let combinedData = [...albumsData, ...songsData].map(d => ({
+  	  ...d,
+      date: new Date(d.date) // Convertir toutes les dates en objets Date
+  }));
+
+	const groupedData = d3.group(combinedData, 
+      d => `${d.date.getFullYear()}-${d.date.getMonth()}-${d.date.getDay()}`
+  );
+
+	// Crée un tableau des groupes avec plus d'un élément
+	const overlappingGroups = Array.from(groupedData.entries())
+      .map(([key, group]) => ({
+          key,
+       		date: group[0].date, // Utilise la date du premier élément du groupe
+        	count: group.length,
+      		items: group
+      }))
+      .filter(g => g.count > 1);
+
+  // Vérifier si combinedData est vide
+  if (combinedData.length === 0) {
+   	console.error("Aucune donnée disponible pour la timeline.");
+    return;
+  }
+
+	// Set the dimensions and margins of the SVG
+	const margin = { top: 30, right: 50, bottom: 130, left: 50 },
+  width = document.body.clientWidth - margin.left - margin.right,
+  height = 200 - margin.top - margin.bottom;
+
+	const svg = d3.select("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+			
+	svg.selectAll("*").remove();
+			
+	const chart = svg.append("g")
+		.attr("transform", `translate(${margin.left},${margin.top})`);
+
+	d3.select(".title").text("Albums and Songs Timeline for " + artist_name);
+
+	const x = d3.scaleTime()
+  	.domain(d3.extent(combinedData, d => d.date))
+    .range([0, width])
+		.nice();
+
+  const [startDate, endDate] = d3.extent(combinedData, d => d.date);
+  const durationInMonths = d3.timeMonth.count(startDate, endDate);
+
+  // Set the tick interval based on the duration
+  let tickInterval;
+  if (durationInMonths <= 6) {
+    tickInterval = d3.timeMonth.every(1);  // Show every month if under 6 months
+  } else if (durationInMonths <= 24) {
+    tickInterval = d3.timeMonth.every(3);  // Show every 3 months if 6 to 24 months
+  } else if (durationInMonths <= 150) {
+    tickInterval = d3.timeYear.every(1);  // Show every year if 2 to 5 years
+  } else {
+    tickInterval = d3.timeYear.every(3);  // Show every 5 years if over 5 years
+  }
+
+  // Define the x-axis with dynamic tick interval
+  const xAxis = d3.axisBottom(x)
+    .ticks(tickInterval)
+    .tickFormat(d => d3.timeFormat("%b %Y")(d))
+    .tickSize(6);		
+
+	axisGroup = chart.append("g")
+		.attr("class", "axis")
+		.attr("transform", `translate(0,${height})`)
+		.call(xAxis)
+		.selectAll("text")
+		.attr("transform", "rotate(-45)")
+		.style("text-anchor", "end");
+
+	const tooltip = d3.select("#tooltip");
+
+	chart.selectAll(".album")
+    .data(combinedData.filter(d => d.type === 'album'))
+    .enter()
+    .append("circle")
+  	.attr("class", "circle")
+		.attr("stroke-width", 1)
+  	.attr("cx", d => x(d.date))
+  	.attr("cy", height / 2)
+    .attr("r", d => getSizeAlbum(d.songs.length))
+    .attr("fill", '#4CAF50')
+    .on("mouseover", (event, d) => {
+		    console.log(d.songs.length);
+				console.log(d);
+				console.log(d.songs)
+				const songsHtml = d.songs
+        		.map(song => `<li>${song.title}</li>`)
+        		.join("");
+            tooltip.style("visibility", "visible")
+                .html(`<img src=${d.cover}><\img><br>
+						          <strong>${d.title}</strong><br>
+						          ${d3.timeFormat("%d/%m/%Y")(d.date)}<br>
+						          ${d.genre}<br>
+						          <ol style="column-count: 2; column-gap: 20px;">${songsHtml}</ol>`);
+    })
+    .on("mousemove", (event) => {
+        tooltip.style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 120) + "px");
+    })
+    .on("mouseout", () => {
+			  tooltip.style("visibility", "hidden");
+    })
+    .on("click", function(event) {
+      event.stopPropagation();
+      const songsHtml = d.songs
+        		.map(song => `<li>${song.title}</li>`)
+        		.join("");
+            tooltip.style("visibility", "visible")
+                .html(`<img src=${d.cover}><\img><br>
+						          <strong>${d.title}</strong><br>
+						          ${d3.timeFormat("%d/%m/%Y")(d.date)}<br>
+						          ${d.genre}<br>
+						          <ol style="column-count: 2; column-gap: 20px;">${songsHtml}</ol>`);
+    });
+
+  // Ajouter les triangles pour les chansons
+  const trianglePath = d3.symbol().type(d3.symbolTriangle).size(175);
+
+  chart.selectAll(".song")
+      .data(combinedData.filter(d => d.type === 'song'))
+      .enter()
+      .append("path")
+      .attr("class", "triangle")
+   		.attr("d", trianglePath)
+    	.attr("transform", d => `translate(${x(d.date)},${height / 2})`)
+    	.attr("fill", '#994060')
+    	.on("mouseover", (event, d) => {
+        	tooltip.style("visibility", "visible")
+          		.html(`<strong>${d.title}</strong><br>
+						        ${d.genre !== "" ? `${d.genre}<br>` : ""}
+						        ${d3.timeFormat("%d/%m/%Y")(d.date)}`);
+      })
+      .on("mousemove", (event) => {
+          tooltip.style("left", (event.pageX + 5) + "px")
+          		  .style("top", (event.pageY + 5) + "px");
+      })
+    	.on("mouseout", () => {
+        	tooltip.style("visibility", "hidden");
+      })
+      .on("click", function(event) {
+        event.stopPropagation();
+        tooltip.style("visibility", "visible")
+          		.html(`<strong>${d.title}</strong><br>
+						        ${d.genre !== "" ? `${d.genre}<br>` : ""}
+						        ${d3.timeFormat("%d/%m/%Y")(d.date)}`);
+      });
+
+	chart.selectAll(".group-indicator")
+      .data(overlappingGroups)
+    	.join("circle")
+      .attr("class", "group-indicator")
+      .attr("cx", d => x(d.date))
+      .attr("cy", height/2)
+      .attr("r", 5)
+      .attr("fill", "rgba(238, 229, 227, 0.6)")
+      .attr("stroke", "rgba(128, 128, 128, 0.3)")
+      .on("mouseover", function(event, d) {
+        	const albums = d.items.filter(item => item.type === "album");
+    		  const songs = d.items.filter(item => item.type === "song");
+
+    			// Créer le contenu du tooltip
+    			let tooltipHtml = `${d3.timeFormat("%d/%m/%Y")(d.date)}<br>
+              <strong>${d.count} releases</strong><br>`;
+    				  if (albums.length > 0) {
+        				  tooltipHtml += `<strong>Albums:</strong><br>
+									  <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            				  ${albums.map(item => `<div style="display: inline-block; margin-right: 10px;"><img src=${item.cover}><\img><br>${item.title}<br>${item.genre}</div>`)
+										  .join('')}
+										</div>`;
+    				  }
+    				  if (songs.length > 0) {
+        				  tooltipHtml += `<br><strong>Songs:</strong><br>
+                      ${songs.map(item => `- ${item.title}`).join('<br>')}`;
+    				  }
+    			    // Afficher le tooltip avec le contenu créé
+    			    tooltip.style("visibility", "visible")
+        			  .html(tooltipHtml)
+        			  .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 120) + "px");
+              })
+      .on("mouseout", () => {
+        	tooltip.style("visibility", "hidden");
+      })
+      .on("click", function(event) {
+        event.stopPropagation();
+        const albums = d.items.filter(item => item.type === "album");
+    		const songs = d.items.filter(item => item.type === "song");
+
+    		// Créer le contenu du tooltip
+    		let tooltipHtml = `${d3.timeFormat("%d/%m/%Y")(d.date)}<br>
+            <strong>${d.count} releases</strong><br>`;
+    			  if (albums.length > 0) {
+        			  tooltipHtml += `<strong>Albums:</strong><br>
+								  <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            			  ${albums.map(item => `<div style="display: inline-block; margin-right: 10px;"><img src=${item.cover}><\img><br>${item.title}<br>${item.genre}</div>`)
+									  .join('')}
+									</div>`;
+    				}
+    				if (songs.length > 0) {
+        			  tooltipHtml += `<br><strong>Songs:</strong><br>
+                ${songs.map(item => `- ${item.title}`).join('<br>')}`;
+    				}
+    			  // Afficher le tooltip avec le contenu créé
+    			  tooltip.style("visibility", "visible")
+        		  .html(tooltipHtml)
+        		  .style("left", (event.pageX + 10) + "px")
+        		  .style("top", (event.pageY - 120) + "px");
+      });
+  chart.selectAll(".group-indicator")
+      .append("text")
+      .attr("x", d => x(d.date))
+      .attr("y", height / 2)
+      .attr("dy", ".35em")
+      .attr("text-anchor", "middle")
+      .attr("fill", "rgba(0, 0, 0, 0.6)")
+      .attr("font-size", "8px")
+      .text(d => d.count);
+
+    const legendSvg = svg.append("g")
+      .attr("transform", `translate(${margin.left}, ${height + margin.top + 60})`); // Position below chart
+
+  const legendGroup = legendSvg.append("g")
+    .attr("transform", `translate(0, 0)`);
+
+  const legendItems = [
+    { symbol: "circle", fill: "#4CAF50", text: "Album" },
+    { symbol: "triangle", fill: "#994060", text: "Song" },
+    { symbol: "circle", fill: "rgba(238, 229, 227, 0.6)", text: "Releases on the same day" }
+  ];
+
+  const legendSpacing = 30;
+  const items = legendGroup.selectAll(".legend-item")
+    .data(legendItems)
+    .enter()
+    .append("g")
+    .attr("class", "legend-item")
+    .attr("transform", (d, i) => `translate(0, ${i * legendSpacing})`);
+
+  items.each(function(d, i) {
+    const item = d3.select(this);
+
+    if (d.symbol === "circle") {
+      item.append("circle")
+        .attr("r", 6)
+        .attr("fill", d.fill)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1);
+    } else if (d.symbol === "triangle") {
+      const trianglePath = d3.symbol().type(d3.symbolTriangle).size(175);
+      item.append("path")
+        .attr("d", trianglePath)
+        .attr("fill", d.fill);
+    }
+
+    item.append("text")
+      .attr("x", 15)
+      .attr("y", 5)
+      .text(d.text)
+      .style("font-size", "12px")
+      .style("fill", "black");
+  });
+
+}
+
+
+function getSizeAlbum(numSongs){
+  if (numSongs >= 1 && numSongs <= 10) return 12;
+  if (numSongs >= 11 && numSongs <= 20) return 17;
+  if (numSongs >= 21 && numSongs <= 30) return 23;
+  if (numSongs >= 31) return 30;
+}
+
+async function getArtistTimeline(artist) {
+  artist_name = artist;
+  albumsData.length = 0;
+  songsData.length = 0;
+  await findArtist();
+
+  if (artist_id!=''){
+		d3.select(".title").text('The timeline for '+artist_name+' is loading...');
+		await fetchSongs();
+		console.log('Données récupérées :', songsData);
+		await fetchAlbums();
+		console.log('Données récupérées :', albumsData);
+
+		buildTimeline();
+	}
+}
+
+</script>
+</body>
+</html>
